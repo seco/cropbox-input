@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="jquery.cropbox.js"></script>
+	<script src="jquery.mousewheel.min.js"></script>
+	<link rel="stylesheet" href="jquery.cropbox.css">
+	<style>
+		.cropFrame{
+		}
+		img {
+		}
+	</style>
+</head>
+<body>
+	<a href="https://github.com/acornejo/jquery-cropbox">https://github.com/acornejo/jquery-cropbox</a>
+	<!-- Image must be local -->
+	<div id="list"></div>
+	
+	<input id="input-file" type="file">
+	<button id="crop">crop</button>
+	<script>
+		// Listen for image input
+    	$('#input-file').on("change", function(e){ 
+    		cropRender(e.target.files[0]);
+    	});
+
+    	// Render the image in an image cropper
+    	function cropRender(img) {
+    		// Check for the various File API support.
+			if (window.File && window.FileReader && window.FileList && window.Blob) {
+				// Great success! All the File APIs are supported.
+				
+				var reader = new FileReader();
+
+				reader.readAsDataURL(img);	
+				// Closure to capture the file information.
+				reader.onloadend = function(e) {
+					// Render image and create cropbox
+					var span = document.createElement('span');
+          			span.innerHTML = ['<img id="img" class="thumb" src="', e.target.result,
+                            '" title="', escape(img.name), '"/>'].join('');
+          			document.getElementById('list').insertBefore(span, null);
+
+          			$('#img').cropbox({
+			        	width: 900,
+			        	height: 105,
+			    	});
+			  	};
+
+			} else {
+			  alert('The File APIs are not fully supported in this browser.');
+			}
+    	};
+
+    	// Get and store the newly cropped imagem then, remove the cropper instance
+    	function storeImg(img, cropboxInstance) {
+    		// Check for the various File API support.
+			if (window.File && window.FileReader && window.FileList && window.Blob) {
+				// Great success! All the File APIs are supported.
+				
+				var reader = new FileReader();
+
+				reader.readAsDataURL(img);	
+				// Closure to capture the file information.
+				reader.onloadend = function(e) {
+					// And, this is our cropped image in blob format
+					console.log(e.target.result);
+					// To do: Store the blob in the database
+
+					// Cancel the crop
+					cropboxInstance.remove();
+			  	};
+
+			} else {
+			  alert('The File APIs are not fully supported in this browser.');
+			}
+    	};
+
+    	// Event that tell us the image is ready to be cropped and stored
+    	$('#crop').click(function(){
+	    	// Find the cropic instance
+	    	var cropboxInstance = $('body').find('#img').data('cropbox');
+	    	// Store the cropped image
+			storeImg(cropboxInstance.getBlob(), cropboxInstance);
+		});
+	</script>
+</body>
+</html>
